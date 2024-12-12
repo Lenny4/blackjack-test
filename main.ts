@@ -225,6 +225,27 @@ class Game {
         return -player.betAmount;
     }
 
+    shouldBust(cards: Card[]): boolean {
+        const valuePlayer = this.getValue(cards);
+        if (valuePlayer === null) {
+            return true;
+        }
+        const isSoft = valuePlayer.length === 2;
+        if (isSoft) {
+            return false;
+        }
+        const realValuePlayer = valuePlayer[valuePlayer.length - 1];
+        if (realValuePlayer <= 11) {
+            return false;
+        }
+        const maxValue = 21 - realValuePlayer;
+        const nbCardWillBust = this.deck.cards.filter((c) => {
+            const v = this.getValue([c])![0];
+            return v <= maxValue;
+        });
+        return nbCardWillBust.length / this.deck.cards.length > 0.5;
+    }
+
     getDecision(player: Player, dealerCards: Card[]): DecisionEnum {
         const valuePlayer = this.getValue(player.cards);
         const valueDealer = this.getValue([dealerCards[0]])![0];
@@ -364,6 +385,10 @@ class Game {
             if (decision === DecisionEnum.Stand) {
                 return;
             } else if (decision === DecisionEnum.Hit) {
+                // doesn't work
+                // if (this.shouldBust(player.cards)) {
+                //     return;
+                // }
                 player.cards.push(this.deck.drawCard());
             } else if (decision === DecisionEnum.Double) {
                 player.cards.push(this.deck.drawCard());
