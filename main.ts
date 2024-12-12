@@ -65,9 +65,12 @@ class Deck {
         }
     }
 
-    drawCard(): Card {
-        const result = this.cards[this.cards.length - 1];
-        this.cards.pop();
+    drawCard(index: number | null = null): Card {
+        if (index === null) {
+            index = this.cards.length - 1;
+        }
+        const result = this.cards[index];
+        this.cards.splice(index, 1);
         return result;
     }
 
@@ -149,11 +152,12 @@ class Game {
         }
         bar1.stop();
         for (const key in split) {
-            const nbWin = (split[key].winAmount + split[key].lossAmount);
+            const nbWin = split[key].winAmount + split[key].lossAmount;
             split[key].avWinByHand = (nbWin / nbSimulations) * 100 + "%";
             split[key].avgWinLoose = nbWin / (split[key].nbLoss + nbWin);
             split[key].avgWinAmount = split[key].winAmount / nbWin;
-            split[key].avgLossAmount = split[key].lossAmount / split[key].nbLoss;
+            split[key].avgLossAmount = split[key].lossAmount /
+                split[key].nbLoss;
         }
         console.log({
             avWinByHand: (this.win / nbSimulations) * 100 + "%",
@@ -448,6 +452,23 @@ class Game {
 }
 
 const deck = new Deck();
+let nbCardRemoved = 0;
+let i = 0;
+for (const card of deck.cards) {
+    if (
+        card.symbol === "2" ||
+        card.symbol === "3" ||
+        card.symbol === "4" ||
+        card.symbol === "5"
+    ) {
+        deck.drawCard(i);
+        nbCardRemoved++;
+    }
+    if (nbCardRemoved >= 300) {
+        break;
+    }
+    i++;
+}
 const game = new Game(deck);
 // remove just 4 cards from the deck after multiple plays
 for (let i = 0; i < 4; i++) {
